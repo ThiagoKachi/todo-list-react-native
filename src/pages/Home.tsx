@@ -1,9 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, StyleSheet, View } from 'react-native';
 
 import { Header } from '../components/Header';
 import { Task, TasksList } from '../components/TasksList';
 import { TodoInput } from '../components/TodoInput';
+
+export type EditTaskArgs = {
+  taskNewTitle: string;
+  taskId: number;
+}
 
 export function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -28,19 +33,46 @@ export function Home() {
   }
 
   function handleRemoveTask(id: number) {
-    setTasks(tasks.filter((task) => task.id !== id))
+    Alert.alert(
+      "Remover item",
+      "Tem certeza que você deseja remover esse item?",
+      [
+        {
+          text: "Não",
+          style: "cancel"
+        },
+        { text: "Sim", onPress: () => setTasks(tasks.filter((task) => task.id !== id)) }
+      ]
+    );
+  }
+
+  function handleEditTask({ taskNewTitle, taskId }: EditTaskArgs) {
+    const updatedTasks = tasks.map(task => ({ ...task }))
+
+    const taskToBeUpdated = updatedTasks.find((task) => task.id === taskId)
+
+    if (!taskToBeUpdated) {
+      return;
+    }
+
+    taskToBeUpdated.title = taskNewTitle;
+    setTasks(updatedTasks);
   }
 
   return (
     <View style={styles.container}>
       <Header tasksCounter={tasks.length} />
 
-      <TodoInput addTask={handleAddTask} />
+      <TodoInput
+        addTask={handleAddTask}
+        tasks={tasks}
+      />
 
       <TasksList 
-        tasks={tasks} 
+        tasks={tasks}
         toggleTaskDone={handleToggleTaskDone}
-        removeTask={handleRemoveTask} 
+        removeTask={handleRemoveTask}
+        editTask={handleEditTask}
       />
     </View>
   )

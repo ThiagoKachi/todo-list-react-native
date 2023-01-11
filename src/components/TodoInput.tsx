@@ -1,15 +1,34 @@
 import React, { useState } from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
+import { Task } from './TasksList';
 
 interface TodoInputProps {
   addTask: (task: string) => void;
+  tasks: Task[];
 }
 
-export function TodoInput({ addTask }: TodoInputProps) {
+export function TodoInput({ addTask, tasks }: TodoInputProps) {
   const [task, setTask] = useState('');
 
   function handleAddNewTask() {
+    const existsTaskWithSameName = tasks
+      .some((taskList) => taskList.title === task)
+    
+    if (existsTaskWithSameName) {
+      Alert.alert(
+        "Task já cadastrada",
+        "Você não pode cadastrar uma task com o mesmo nome.",
+        [
+          {
+            text: "OK",
+            style: "cancel"
+          },
+        ]
+      );
+      return;
+    }
+
     if (task.length > 0) {
       addTask(task)
       setTask('')
